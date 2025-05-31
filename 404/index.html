@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mihails Volohovs | Portfolio</title>
+  <link rel="icon" href="../portfolio/assets/palette icon v2.png" type="image/png">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Hidden dot button (top right) -->
+  <a href="../portfolio/scripts" class="secret-dot"></a>
+  
+  <div class="hero-bg">
+    <div class="overlay">
+      <div class="hero-center">
+        <h1>Page not found</h1>
+        <div class="hero-socials">
+          <a href="https://www.linkedin.com/in/mihails-volohovs-93958a328" target="_blank">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a href="mailto:mvolohovs@inbox.lv">
+            <i class="fas fa-envelope"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Fade-in background image after load
+    window.addEventListener('DOMContentLoaded', function() {
+        const bg = document.querySelector('.hero-bg');
+        const bgImg = new Image();
+        bgImg.src = '../portfolio/assets/background-photo-green.jpeg'; 
+        bgImg.onload = function() {
+            bg.classList.add('bg-loaded');
+        }
+    });
+  </script>
+</body>
+</html>

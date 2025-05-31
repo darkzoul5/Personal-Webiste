@@ -1,0 +1,152 @@
+/* Base Styles */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s;
+    display: flex;                /* Enables flexbox layout for the body */
+    flex-direction: column;       /* Arranges items vertically */
+    align-items: center;          /* Centers items horizontally */
+    justify-content: center;      /* Centers items vertically */
+    min-height: 100vh;            /* Ensures the body takes full viewport height */
+    overflow-x: hidden;
+}
+
+/* Header Styles */
+header {
+    text-align: center;
+    padding: 20px;
+    width: 100%;                  /* Full width of the viewport */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Navigation Styles */
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;                    /* Spacing between navigation items */
+}
+
+nav ul li a {
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Button Styles */
+button {
+    position: fixed;             /* Use fixed positioning */
+    top: 20px;                   /* 20px from the top */
+    right: 20px;                 /* 20px from the right */
+    font-size: 18px;             /* Icon size */
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+button:hover {
+    background-color: #ddd;
+}
+
+/* Section Styles */
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: left;         /* Centers all content inside main */
+    text-align: left;            /* Aligns text to the left inside sections */
+    max-width: 800px;            /* Limits the width of content */
+    margin: 20px;                /* Adds margin around the main container */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+section {
+    margin-bottom: 20px;         /* Adds space between sections */
+}
+
+ul {
+    padding-left: 0;
+    list-style: none;
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light Theme */
+body.light-mode {
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+header.light-mode {
+    background-color: #333;
+    color: #fff;
+}
+
+nav.light-mode ul li a {
+    color: #fff;
+}
+
+button.light-mode {
+    background-color: #444;
+    color: #fff;
+}
+
+main.light-mode {
+    background-color: #fff;
+    color: #333;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+footer.light-mode {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Dark Theme */
+body.dark-mode {
+    background-color: #1f1f1f;
+    color: #dbdada;
+}
+
+header.dark-mode {
+    background-color: #222;
+    color: #f4f4f9;
+}
+
+nav.dark-mode ul li a {
+    color: #f4f4f9;
+}
+
+button.dark-mode {
+    background-color: #444;
+    color: #f4f4f9;
+}
+
+main.dark-mode {
+    background-color: #1f1f1f;
+    color: #f4f4f9;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+footer.dark-mode {
+    background-color: #1e1e1e;
+    color: #f4f4f9;
+}

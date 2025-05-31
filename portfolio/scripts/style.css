@@ -1,0 +1,159 @@
+/* Core box-sizing and overflow fix */
+html, body, *, *::before, *::after {
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #010B0F;
+  font-family: 'Montserrat', Arial, sans-serif;
+  overflow-x: hidden;
+}
+/* Flex container for fullscreen layout */
+body.scripts-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Core palette colors */
+:root {
+  --dark-bg: #010B0F;
+  --green: #264A3A;
+  --teal: #64ffda;
+  --overlay: rgba(2, 12, 16, 0.96);
+}
+
+/* Main content will grow, pushing footer to bottom if not enough content */
+.palette-bg {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dark-bg);
+  width: 100%;
+  min-height: 0;
+  /* Remove 100vw, let flexbox handle */
+}
+
+.overlay-minimal {
+  background: var(--overlay);
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Move header higher up */
+.hero-center {
+  text-align: center;
+  color: #fff;
+  width: 100%;
+  z-index: 3;
+  position: relative;
+  padding: 24px 12px 24px 12px; /* Smaller (top and bottom) padding */
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.hero-center h2 {
+  font-size: 2.1rem;
+  margin-bottom: 32px;
+  color: var(--teal);
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: bold;
+  letter-spacing: 0.11em;
+}
+
+/* Script list styling */
+.script-list {
+  text-align: left;
+  margin: 0 auto;
+  padding: 0 0 0 1.7rem;
+  max-width: 420px;
+  font-family: inherit;
+}
+
+.script-list li {
+  margin: 20px 0;
+  font-size: 1.09rem;
+  color: #eaeaea;
+  font-family: inherit;
+}
+
+.script-list a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.18s, border-bottom 0.16s;
+  border-bottom: 1.5px solid var(--green);
+}
+
+.script-list a:hover {
+  color: var(--teal);
+  border-bottom: 1.5px solid var(--teal);
+}
+
+/* Badges for script types */
+.badge-bash, .badge-python {
+  display: inline-block;
+  margin-left: 9px;
+  padding: 1px 9px 2px 9px;
+  border-radius: 12px;
+  font-size: 0.84em;
+  font-weight: 700;
+  vertical-align: middle;
+  letter-spacing: 0.04em;
+}
+
+.badge-bash {
+  background: #264A3A2f;
+  color: #49c387;
+  border: 1.2px solid #264A3A;
+}
+
+.badge-python {
+  background: #181f26A6;
+  color: #33c7e5;
+  border: 1.2px solid #264A3A;
+}
+
+/* Footer always at bottom, with Montserrat font */
+footer {
+  flex-shrink: 0;
+  width: 100%;
+  text-align: center;
+  color: #b1bcbd;
+  font-size: 1rem;
+  background: transparent;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+footer a {
+  color: var(--teal);
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 3px;
+  transition: background 0.13s, color 0.13s;
+}
+footer a:hover {
+  background: #264A3A;
+  color: #fff;
+}
+
+/* Responsive tweaks */
+@media screen and (max-width: 600px) {
+  .hero-center h2 {
+    font-size: 1.4rem;
+    margin-bottom: 24px;
+  }
+  .script-list {
+    padding-left: 1.1rem;
+    font-size: 0.98rem;
+  }
+  .hero-center {
+    padding-top: 4vw;
+  }
+}

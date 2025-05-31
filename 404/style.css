@@ -1,0 +1,156 @@
+:root {
+  --main-bg: #010B0F;
+  --green: #264A3A;
+  --menu-hover: #64ffda;
+  --overlay: rgba(1,11,15,0.62);
+}
+
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--main-bg);
+}
+
+.hero-bg {
+  width: 100vw;  
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: var(--main-bg);
+}
+.hero-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../portfolio/assets/background-photo-green.jpeg') no-repeat center center/cover;
+  opacity: 0;
+  transition: opacity 1.25s cubic-bezier(0.77, 0, 0.175, 1);
+  z-index: 1;
+  pointer-events: none;
+}
+.hero-bg.bg-loaded::before {
+  opacity: 1;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.hero-center {
+  text-align: center;
+  color: #fff;
+  width: 100%;
+  z-index: 3;
+  position: relative;
+}
+
+.hero-center h1 {
+  margin: 0 0 40px;
+  font-size: 3rem;
+  font-family: 'Montserrat', Arial, sans-serif;
+  letter-spacing: 0.12em;
+  font-weight: bold;
+  color: #fff;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+  align-items: center;
+}
+
+/* Clean modern menu, underline accent on hover */
+nav a {
+  color: #fff;
+  text-decoration: none;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-size: 1rem;
+  padding: 2px 12px;
+  transition: color 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+nav a:hover {
+  color: var(--menu-hover);
+  border-bottom: 2px solid var(--green);
+  background: none;
+}
+
+.hero-socials {
+  margin-top: 22px;
+}
+
+.hero-socials a {
+  color: #fff;
+  margin: 0 10px;
+  font-size: 1.3rem;
+  transition: color 0.17s, transform 0.19s, background 0.19s, border 0.18s;
+  border-radius: 50%;
+  padding: 7px 9px;
+  background: rgba(2,12,16,0.17);
+  display: inline-block;
+  border: 1.5px solid transparent;
+}
+.hero-socials a:hover {
+  color: var(--green);
+  background: #fff;
+  border: 1.5px solid var(--green);
+  transform: scale(1.15);
+}
+
+/* Secret dot styles for top-right button */
+.secret-dot {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  width: 12px;
+  height: 12px;
+  background: rgba(38, 74, 58, 0.17);
+  border-radius: 50%;
+  z-index: 40;
+  opacity: 0.5;
+  transition: opacity 0.25s, background 0.18s, box-shadow 0.21s;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+  border: 1.5px solid #264A3A14;
+}
+.secret-dot:hover {
+  opacity: 0.95;
+  background: #264a3ad9;
+  box-shadow: 0 0 10px 2px #264A3A44;
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+  .hero-center h1 {
+    font-size: 2rem;
+  }
+  nav a {
+    font-size: 0.97rem;
+    padding: 7px 18px;
+  }
+  .hero-socials a {
+    font-size: 1.05rem;
+    padding: 7px 9px;
+  }
+  .secret-dot {
+    top: 14px;
+    right: 13px;
+    width: 8px;
+    height: 8px;
+  }
+}
