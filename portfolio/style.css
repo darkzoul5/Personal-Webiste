@@ -13,17 +13,17 @@ body, html {
 }
 
 .hero-bg {
-  width: 100vw;  
-  height: 100vh;
+  width: 100%;  
+  min-height: 100vh;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   background: var(--main-bg);
 }
 .hero-bg::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: url('assets/background-photo-green.jpeg') no-repeat center center/cover;
+  background: url('/portfolio/assets/background-photo-green.jpeg') no-repeat center center/cover;
   opacity: 0;
   transition: opacity 1.25s cubic-bezier(0.77, 0, 0.175, 1);
   z-index: 1;
@@ -62,15 +62,27 @@ body, html {
   color: #fff;
 }
 
-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-bottom: 25px;
-  align-items: center;
+.aboutme-content {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: normal; 
+}
+.aboutme-content strong,
+.aboutme-content b {
+  font-weight: bold;
 }
 
-/* Clean modern menu, underline accent on hover */
+/* ===================
+   HORIZONTAL NAVIGATION
+   =================== */
+nav {
+  display: flex;
+  flex-direction: row;     
+  gap: 24px;               /* Space between buttons */
+  margin-bottom: 50px;
+  align-items: center;
+  justify-content: center;
+}
+
 nav a {
   color: #fff;
   text-decoration: none;
@@ -134,10 +146,26 @@ nav a:hover {
   box-shadow: 0 0 10px 2px #264A3A44;
 }
 
+/* ===================
+   ABOUT BOX: FONT FIX
+   =================== */
+/* 
+If you use a special class (recommended, e.g. <div class="about-text">), 
+apply this to style all main content boxes.
+If not, you can use the selector below for any direct div in .hero-center.
+*/
+.hero-center > div:not(.hero-socials):not(.overlay) {
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
 /* Responsive */
 @media screen and (max-width: 600px) {
   .hero-center h1 {
     font-size: 2rem;
+  }
+  nav {
+    flex-direction: column; /* Stack vertically on mobile */
+    gap: 13px;
   }
   nav a {
     font-size: 0.97rem;
