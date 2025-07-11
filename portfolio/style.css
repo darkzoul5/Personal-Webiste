@@ -62,13 +62,13 @@ body, html {
   color: #fff;
 }
 
-.aboutme-content {
+.page-content {
   font-family: 'Montserrat', Arial, sans-serif;
-  font-weight: normal; 
+  font-weight: normal !important;
 }
-.aboutme-content strong,
-.aboutme-content b {
-  font-weight: bold;
+.page-content strong,
+.page-content b {
+  font-weight: bold !important;
 }
 
 /* ===================
@@ -81,6 +81,7 @@ nav {
   margin-bottom: 50px;
   align-items: center;
   justify-content: center;
+  
 }
 
 nav a {
@@ -93,6 +94,7 @@ nav a {
   padding: 2px 12px;
   transition: color 0.2s;
   border-bottom: 2px solid transparent;
+  margin-top: 45px;
 }
 
 nav a:hover {
