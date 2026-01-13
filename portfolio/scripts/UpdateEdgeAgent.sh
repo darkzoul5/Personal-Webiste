@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -euo pipefail
 # Colors
 GREEN="\033[1;32m"
 YELLOW="\033[1;33m"

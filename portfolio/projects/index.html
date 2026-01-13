@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Academic | Mihails Volohovs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      href="/portfolio/assets/palette icon v3.png"
+      type="image/png"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Montserrat:400,700"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/portfolio/style.css" />
+  </head>
+
+  <body class="dark-mode">
+    <!-- Hidden dot button (top right) -->
+    <a href="/portfolio/scripts/" class="secret-dot"></a>
+    <div class="hero-bg">
+      <div class="overlay"></div>
+      <div class="hero-center">
+        <nav>
+          <a href="/portfolio/">HOME</a>
+          <a
+            href="/portfolio/aboutme/"
+            style="border-bottom: 2px solid var(--green)"
+            >ABOUT ME</a
+          >
+          <a href="/portfolio/academic/">ACADEMIC</a>
+          <a href="/portfolio/projects/">PROJECTS</a>
+          <a href="/portfolio/resume/">RESUME</a>
+        </nav>
+        <div
+          style="
+            background: rgba(25, 30, 34, 0.76);
+            padding: 2.2rem 2rem;
+            border-radius: 15px;
+            max-width: 720px;
+            margin: 40px auto 0 auto;
+            box-shadow: 0 2px 14px #000a;
+            color: #fff;
+            text-align: left;
+            font-size: 1.13rem;
+            letter-spacing: 0.01em;
+            line-height: 1.68;
+          "
+        >
+          <div class="page-content">
+            <h2>Projects</h2>
+
+            <h3>Home Lab Management</h3>
+            <ul>
+              <li>
+                Run a personal home lab for experimenting with and managing
+                multiple services in a controlled environment.
+              </li>
+              <li>
+                Use Docker and Portainer for containerized deployments and easy
+                orchestration of applications.
+              </li>
+              <li>
+                Key services managed:
+                <ul>
+                  <li>Media & File: Jellyfin, Nextcloud, Immich</li>
+                  <li>
+                    Automation & IoT: Home Assistant, ESPHome, Zigbee2MQTT
+                  </li>
+                  <li>
+                    Networking & Security: WireGuard VPN, Traefik reverse proxy, Cowdsec + Traefik Bouncer,
+                    Authentik authentication
+                  </li>
+                  <li>
+                    Game Servers: Minecraft, vintage Story, Terraria
+                    
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Focus on efficiency, security, and maintainability.
+              </li>
+              <li>
+                Developed skills in Linux administration, containerization,
+                networking, automation, and troubleshooting Linux systems.
+              </li>
+             
+            </ul>
+          </div>
+        </div>
+        <div class="hero-socials">
+          <a
+            href="https://www.linkedin.com/in/mihails-volohovs-93958a328"
+            target="_blank"
+          >
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a href="mailto:mvolohovs@inbox.lv">
+            <i class="fas fa-envelope"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Fade-in background image after load
+      window.addEventListener("DOMContentLoaded", function () {
+        const bg = document.querySelector(".hero-bg");
+        const bgImg = new Image();
+        bgImg.src = "/portfolio/assets/background-photo-green.jpeg";
+        bgImg.onload = function () {
+          bg.classList.add("bg-loaded");
+        };
+      });
+    </script>
+  </body>
+</html>
