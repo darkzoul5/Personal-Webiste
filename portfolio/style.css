@@ -61,7 +61,19 @@ body, html {
   font-weight: bold;
   color: #fff;
 }
-
+.container {
+  background: rgba(25, 30, 34, 0.76);
+  padding: 2.2rem 2rem;
+  border-radius: 15px;
+  max-width: clamp(300px, 90%, 900px);
+  margin: 40px auto 0 auto;
+  box-shadow: 0 2px 14px #000a;
+  color: #fff;
+  text-align: left;
+  font-size: 1.13rem;
+  letter-spacing: 0.01em;
+  line-height: 1.68;
+}
 .page-content {
   font-family: 'Montserrat', Arial, sans-serif;
   font-weight: normal !important;
