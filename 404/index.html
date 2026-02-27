@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Mihails Volohovs | Portfolio</title>
-  <link rel="icon" href="../portfolio/assets/palette icon v3.png" type="image/png">
+  <link rel="icon" href="/assets/palette icon v3.png" type="image/png">
   <meta name="robots" content="noindex">
   <meta name="referrer" content="no-referrer">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,7 +14,7 @@
 
 <body>
   <!-- Hidden dot button (top right) -->
-  <a href="../portfolio/scripts" class="secret-dot"></a>
+  <a href="/scripts" class="secret-dot"></a>
 
   <div class="hero-bg">
     <div class="overlay">
@@ -22,7 +22,7 @@
         <h1>Page Not Found</h1>
 
         <!-- Back to main page button -->
-        <button class="back-button" type="button" onclick="location.href='../portfolio'">
+        <button class="back-button" type="button" onclick="location.href='/'">
           <i class="fas fa-arrow-left"></i> Back to Main Page
         </button>
 
@@ -43,7 +43,7 @@
     window.addEventListener('DOMContentLoaded', function () {
       const bg = document.querySelector('.hero-bg');
       const bgImg = new Image();
-      bgImg.src = '../portfolio/assets/background-photo-green.jpeg';
+      bgImg.src = '/assets/background-photo-green.jpeg';
       bgImg.onload = function () {
         bg.classList.add('bg-loaded');
       }

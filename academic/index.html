@@ -5,25 +5,25 @@
     <meta charset="UTF-8">
     <title>Academic | Mihails Volohovs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/portfolio/assets/palette icon v3.png" type="image/png">
+    <link rel="icon" href="/assets/palette icon v3.png" type="image/png">
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/portfolio/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body class="dark-mode">
     <!-- Hidden dot button (top right) -->
-    <a href="/portfolio/scripts/" class="secret-dot"></a>
+    <a href="/scripts/" class="secret-dot"></a>
     <div class="hero-bg">
         <div class="overlay"></div>
         <div class="hero-center">
 
             <nav>
-                <a href="/portfolio/">HOME</a>
-                <a href="/portfolio/aboutme/">ABOUT ME</a>
-                <a href="/portfolio/academic/" style="border-bottom: 2px solid var(--green)">ACADEMIC</a>
-                <a href="/portfolio/projects/">PROJECTS</a>
-                <a href="/portfolio/resume/">RESUME</a>
+                <a href="/">HOME</a>
+                <a href="/aboutme/">ABOUT ME</a>
+                <a href="/academic/" style="border-bottom: 2px solid var(--green)">ACADEMIC</a>
+                <a href="/projects/">PROJECTS</a>
+                <a href="/resume/">RESUME</a>
             </nav>
             <div class="container">
                 <div class="page-content">
@@ -46,7 +46,7 @@
         window.addEventListener('DOMContentLoaded', function () {
             const bg = document.querySelector('.hero-bg');
             const bgImg = new Image();
-            bgImg.src = '/portfolio/assets/background-photo-green.jpeg';
+            bgImg.src = '/assets/background-photo-green.jpeg';
             bgImg.onload = function () {
                 bg.classList.add('bg-loaded');
             }
