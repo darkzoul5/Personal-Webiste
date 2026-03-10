@@ -93,7 +93,6 @@ nav {
   margin-bottom: 50px;
   align-items: center;
   justify-content: center;
-  
 }
 
 nav a {
@@ -161,14 +160,27 @@ nav a:hover {
 }
 
 /* ===================
-   ABOUT BOX: FONT FIX
-   =================== */
-/* 
-If you use a special class (recommended, e.g. <div class="about-text">), 
-apply this to style all main content boxes.
-If not, you can use the selector below for any direct div in .hero-center.
-*/
-.hero-center > div:not(.hero-socials):not(.overlay) {
+   Back button for 404 page */
+.back-button {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 1rem;
+  margin-right: 8px;
+  color: #fff;
+  background-color: #2e8b78;
+  text-decoration: none;
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color .2s;
+  border: 0;
+  cursor: pointer;
+}
+
+.back-button:hover,
+.back-button:active {
+  background-color: #256b5b;
+}
+ero-center > div:not(.hero-socials):not(.overlay) {
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
