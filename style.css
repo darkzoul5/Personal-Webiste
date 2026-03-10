@@ -180,7 +180,7 @@ nav a:hover {
 .back-button:active {
   background-color: #256b5b;
 }
-ero-center > div:not(.hero-socials):not(.overlay) {
+.hero-center > div:not(.hero-socials):not(.overlay) {
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
@@ -226,7 +226,7 @@ ero-center > div:not(.hero-socials):not(.overlay) {
 }
 
 /* Responsive */
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 699px) {
   .hero-center h1 {
     font-size: 2rem;
   }
