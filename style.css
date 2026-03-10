@@ -3,6 +3,11 @@
   --green: #264A3A;
   --menu-hover: #64ffda;
   --overlay: rgba(1,11,15,0.62);
+  --container-bg: rgba(25, 30, 34, 0.76);
+  --social-bg: rgba(2, 12, 16, 0.17);
+  --shadow: #000a;
+  --text-white: #fff;
+  --button-hover: #256b5b;
 }
 
 body, html {
@@ -55,22 +60,22 @@ body, html {
 
 .hero-center h1 {
   margin: 0 0 40px;
-  font-size: 3rem;
+  font-size: clamp(1.5rem, 5vw, 3rem);
   font-family: 'Montserrat', Arial, sans-serif;
   letter-spacing: 0.12em;
   font-weight: bold;
-  color: #fff;
+  color: var(--text-white);
 }
 .container {
-  background: rgba(25, 30, 34, 0.76);
+  background: var(--container-bg);
   padding: 2.2rem 2rem;
   border-radius: 15px;
   max-width: clamp(300px, 90%, 900px);
   margin: 40px auto 0 auto;
-  box-shadow: 0 2px 14px #000a;
-  color: #fff;
+  box-shadow: 0 2px 14px var(--shadow);
+  color: var(--text-white);
   text-align: left;
-  font-size: 1.13rem;
+  font-size: clamp(1rem, 2vw, 1.13rem);
   letter-spacing: 0.01em;
   line-height: 1.68;
 }
@@ -96,16 +101,20 @@ nav {
 }
 
 nav a {
-  color: #fff;
+  color: var(--text-white);
   text-decoration: none;
   font-family: 'Montserrat', Arial, sans-serif;
   font-weight: bold;
   letter-spacing: 2px;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 2vw, 1rem);
   padding: 2px 12px;
   transition: color 0.2s;
   border-bottom: 2px solid transparent;
   margin-top: 15px;
+}
+
+nav a.active {
+  border-bottom: 2px solid var(--green);
 }
 
 nav a:hover {
@@ -119,13 +128,13 @@ nav a:hover {
 }
 
 .hero-socials a {
-  color: #fff;
+  color: var(--text-white);
   margin: 0 10px;
   font-size: 1.3rem;
   transition: color 0.17s, transform 0.19s, background 0.19s, border 0.18s;
   border-radius: 50%;
   padding: 7px 9px;
-  background: rgba(2,12,16,0.17);
+  background: var(--social-bg);
   display: inline-block;
   border: 1.5px solid transparent;
 }
@@ -187,8 +196,8 @@ nav a:hover {
 /* Button Styles */
 .btn {
   font-family: 'Montserrat', Arial, sans-serif;
-  font-size: 1rem;
-  color: #fff;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: var(--text-white);
   background-color: #2e8b78;
   text-decoration: none;
   display: inline-block;
@@ -223,6 +232,14 @@ nav a:hover {
   width: 100%;
   height: 80vh;
   border: none;
+}
+
+/* Accessibility: Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* Responsive */

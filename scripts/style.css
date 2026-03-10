@@ -23,6 +23,8 @@ body.scripts-page {
   --green: #264A3A;
   --teal: #64ffda;
   --overlay: rgba(2, 12, 16, 0.96);
+  --text-white: #fff;
+  --container-bg: rgba(25, 30, 34, 0.76);
 }
 
 /* Main content will grow, pushing footer to bottom if not enough content */
@@ -49,7 +51,7 @@ body.scripts-page {
 /* Move header higher up */
 .hero-center {
   text-align: center;
-  color: #fff;
+  color: var(--text-white);
   width: 100%;
   z-index: 3;
   position: relative;
@@ -58,7 +60,7 @@ body.scripts-page {
 }
 
 .hero-center h2 {
-  font-size: 2.1rem;
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
   margin-bottom: 32px;
   color: var(--teal);
   font-family: 'Montserrat', Arial, sans-serif;
@@ -77,13 +79,13 @@ body.scripts-page {
 
 .script-list li {
   margin: 20px 0;
-  font-size: 1.09rem;
+  font-size: clamp(1rem, 2vw, 1.09rem);
   color: #eaeaea;
   font-family: inherit;
 }
 
 .script-list a {
-  color: #fff;
+  color: var(--text-white);
   text-decoration: none;
   font-weight: bold;
   transition: color 0.18s, border-bottom 0.16s;
@@ -141,6 +143,14 @@ footer a {
 footer a:hover {
   background: #264A3A;
   color: #fff;
+}
+
+/* Accessibility: Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* Responsive tweaks */

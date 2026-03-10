@@ -3,10 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#264A3A">
     <title>Resume | Mihails Volohovs</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/assets/palette icon v3.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
 </head>
@@ -23,7 +24,7 @@
                 <a href="/aboutme/">ABOUT ME</a>
                 <a href="/academic/">ACADEMIC</a>
                 <a href="/projects/">PROJECTS</a>
-                <a href="/resume/" style="border-bottom: 2px solid var(--green)">RESUME</a>
+                <a href="/resume/" class="active">RESUME</a>
             </nav>
             <div class="container">
                 <div class="page-content">
@@ -34,7 +35,7 @@
                     <a href="/assets/resume.pdf" target="_blank" class="btn">Download Resume</a>
                     <p></p>
 
-                    <button id="showResumeBtn" class="btn">Show Resume</button>
+                    <button id="showResumeBtn" class="btn" aria-label="Show resume in a popup" aria-expanded="false">Show Resume</button>
                     <p>Last updated: March 2026</p>
                     <div id="pdfContainer" style="margin-top:20px;">
                         <iframe src="/assets/resume.pdf" width="100%" height="80vh"></iframe>
@@ -42,36 +43,16 @@
                 </div>
             </div>
             <div class="hero-socials">
-                <a href="https://www.linkedin.com/in/mihails-volohovs" target="_blank">
+                <a href="https://www.linkedin.com/in/mihails-volohovs" target="_blank" aria-label="Visit LinkedIn profile">
                     <i class="fab fa-linkedin-in"></i>
                 </a>
-                <a href="mailto:mvolohovs@inbox.lv">
+                <a href="mailto:mvolohovs@inbox.lv" aria-label="Send email">
                     <i class="fas fa-envelope"></i>
                 </a>
             </div>
         </div>
     </div>
-    <script>
-        // Fade-in background image after load
-        window.addEventListener('DOMContentLoaded', function () {
-            const bg = document.querySelector('.hero-bg');
-            const bgImg = new Image();
-            bgImg.src = '/assets/background-photo-green.jpeg';
-            bgImg.onload = function () {
-                bg.classList.add('bg-loaded');
-            }
-        });
-    </script>
-
-    <script>
-        const btn = document.getElementById('showResumeBtn');
-        const container = document.getElementById('pdfContainer');
-
-        btn.addEventListener('click', () => {
-            container.classList.toggle('show');
-            btn.textContent = container.classList.contains('show') ? 'Hide Resume' : 'Show Resume';
-        });
-    </script>
+    <script src="/shared.js"></script>
 </body>
 
 </html>
