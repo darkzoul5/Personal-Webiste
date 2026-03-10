@@ -172,6 +172,26 @@ If not, you can use the selector below for any direct div in .hero-center.
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
+/* Button Styles */
+.btn {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #2e8b78;
+  text-decoration: none;
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color .2s;
+  border: 0;
+  cursor: pointer;
+}
+
+.btn:hover,
+.btn:active {
+  background-color: #256b5b;
+}
+
 /* Responsive */
 @media screen and (max-width: 600px) {
   .hero-center h1 {
