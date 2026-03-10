@@ -3,12 +3,13 @@
 Currently has:
 
 - Main page
-- About
-- Academic
-- Projects
+- About page
+- Academic page
+- Projects page
+- Resume page
 - Scripts secret page
 - 404 page
 
 To-Do:
 
-- Resume page
+???
