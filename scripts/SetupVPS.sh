@@ -73,6 +73,25 @@ fi
 echo "Set a password for 'dark_zoul' (needed for sudo commands):"
 passwd dark_zoul
 
+# Add dark_zoul to sudoers
+SUDOERS_FILE="/etc/sudoers.d/dark_zoul"
+if [[ -f "$SUDOERS_FILE" ]] && grep -q "^dark_zoul" "$SUDOERS_FILE"; then
+    ok "User 'dark_zoul' is already in sudoers."
+else
+    # Create file with tee to ensure it's written correctly
+    echo "dark_zoul ALL=(ALL) ALL" | tee "$SUDOERS_FILE" > /dev/null
+    chmod 440 "$SUDOERS_FILE"
+    
+    # Validate the sudoers file syntax
+    if visudo -c -f "$SUDOERS_FILE" >/dev/null 2>&1; then
+        ok "User 'dark_zoul' added to sudoers."
+    else
+        err "Failed to add dark_zoul to sudoers (syntax error)."
+        rm "$SUDOERS_FILE"
+        exit 1
+    fi
+fi
+
 info "Hardening SSH Configuration..."
 
 sshd_config_path="/etc/ssh/sshd_config"
