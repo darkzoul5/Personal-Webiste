@@ -15,7 +15,7 @@ IMAGE_NAME="portainer/agent:lts"
 CONFIG_FILE="$HOME/.portainer_edge.conf"
 
 # Check if EDGE_ID and EDGE_KEY are passed as arguments
-if [ -z "$1" ] || [ -z "$2" ]; then
+if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
     # If not passed, check if config file exists and load from it
     if [ -f "$CONFIG_FILE" ]; then
         source "$CONFIG_FILE"
