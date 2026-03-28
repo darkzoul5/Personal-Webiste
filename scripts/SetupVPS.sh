@@ -130,7 +130,7 @@ read -p "Enter Edge Key: " edge_key
 
 # Download and run the script for Portainer Agent, passing the credentials as arguments
 warn "Downloading and executing the Edge Agent install script..."
-curl -fsSL "https://www.darkzoul.org/portfolio/scripts/UpdatePortainerAgent.sh" | bash -s "$edge_id" "$edge_key"
+curl -fsSL "https://portfolio.darkzoul.org/scripts/EdgeAgentUpdate.sh" | bash -s "$edge_id" "$edge_key"
 
 info "Installing Miscellaneous Programs..."
 
