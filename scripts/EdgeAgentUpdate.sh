@@ -20,6 +20,11 @@ if [ -z "$1" ] || [ -z "$2" ]; then
     if [ -f "$CONFIG_FILE" ]; then
         source "$CONFIG_FILE"
         info "Loaded EDGE_ID and EDGE_KEY from config file."
+        # Validate that credentials were loaded
+        if [ -z "${EDGE_ID:-}" ] || [ -z "${EDGE_KEY:-}" ]; then
+            err "Config file found but EDGE_ID or EDGE_KEY is missing. Please provide valid credentials."
+            exit 1
+        fi
     else
         read -rp "Enter Edge ID: " EDGE_ID
         read -rsp "Enter Edge Key: " EDGE_KEY
@@ -33,15 +38,22 @@ fi
 
 info "Checking for updated image: $IMAGE_NAME"
 
-OLD_IMAGE_ID=$(docker inspect --format='{{.Id}}' "$IMAGE_NAME" 2>/dev/null)
-PULL_OUTPUT=$(docker pull "$IMAGE_NAME" 2>&1)
+OLD_IMAGE_ID=$(docker inspect --format='{{.Id}}' "$IMAGE_NAME" 2>/dev/null || true)
+
+if ! PULL_OUTPUT=$(docker pull "$IMAGE_NAME" 2>&1); then
+    err "Failed to pull image: $IMAGE_NAME. Check your Docker setup and internet connection."
+    exit 1
+fi
+
 NEW_IMAGE_ID=$(docker inspect --format='{{.Id}}' "$IMAGE_NAME" 2>/dev/null)
 
 if echo "$PULL_OUTPUT" | grep -q "Image is up to date"; then
     ok "Image is already up to date. No update necessary."
     exit 0
 else
-    if [ "$OLD_IMAGE_ID" != "$NEW_IMAGE_ID" ]; then
+    if [ -z "$OLD_IMAGE_ID" ]; then
+        info "Installing new Portainer Edge Agent image..."
+    elif [ "$OLD_IMAGE_ID" != "$NEW_IMAGE_ID" ]; then
         info "Found a new image. Proceeding with update..."
     else
         info "Image re-pulled, but no ID change detected. Proceeding with container recreation."

@@ -20,25 +20,31 @@ fi
 
 info "Checking and Setting up Swap..."
 
-# Ask for the size of the swap file in GB
-read -p "Enter the swap size in GB: " swap_size
-if ! [[ "$swap_size" =~ ^[0-9]+$ ]]; then
-    err "Invalid input. Please enter a valid number."
-    exit 1
-fi
+# Ask if user wants to set up swap
+read -p "Do you want to set up swap? (y/n): " setup_swap
+if [[ "$setup_swap" == "y" ]]; then
+    # Ask for the size of the swap file in GB
+    read -p "Enter the swap size in GB: " swap_size
+    if ! [[ "$swap_size" =~ ^[0-9]+$ ]]; then
+        err "Invalid input. Please enter a valid number."
+        exit 1
+    fi
 
-# Check if swap already exists
-if swapon --show | grep -q "/swapfile"; then
-    ok "Swap already set up."
+    # Check if swap already exists
+    if swapon --show | grep -q "/swapfile"; then
+        ok "Swap already set up."
+    else
+        warn "Creating swap..."
+        swapoff -a 2>/dev/null
+        fallocate -l ${swap_size}G /swapfile
+        chmod 600 /swapfile
+        mkswap /swapfile
+        swapon /swapfile
+        echo "/swapfile none swap sw 0 0" >> /etc/fstab
+        ok "Swap setup complete."
+    fi
 else
-    warn "Creating swap..."
-    swapoff -a 2>/dev/null
-    fallocate -l ${swap_size}G /swapfile
-    chmod 600 /swapfile
-    mkswap /swapfile
-    swapon /swapfile
-    echo "/swapfile none swap sw 0 0" >> /etc/fstab
-    ok "Swap setup complete."
+    info "Swap setup skipped."
 fi
 
 info "Setting up User 'dark_zoul'..."
@@ -49,9 +55,23 @@ if id "dark_zoul" &>/dev/null; then
 else
     useradd -m -s /bin/bash dark_zoul
     ok "User 'dark_zoul' created."
-    echo "Set a password for 'dark_zoul':"
-    passwd dark_zoul
 fi
+
+# Copy SSH keys from current user to dark_zoul if authorized_keys exists
+if [[ -f "$HOME/.ssh/authorized_keys" ]]; then
+    mkdir -p /home/dark_zoul/.ssh
+    cp "$HOME/.ssh/authorized_keys" /home/dark_zoul/.ssh/authorized_keys
+    chown -R dark_zoul:dark_zoul /home/dark_zoul/.ssh
+    chmod 700 /home/dark_zoul/.ssh
+    chmod 600 /home/dark_zoul/.ssh/authorized_keys
+    ok "SSH keys copied to 'dark_zoul'."
+else
+    warn "No SSH authorized_keys found in current user."
+fi
+
+# Set password for dark_zoul (required for sudo)
+echo "Set a password for 'dark_zoul' (needed for sudo commands):"
+passwd dark_zoul
 
 info "Hardening SSH Configuration..."
 
@@ -115,14 +135,16 @@ if ! command -v docker &>/dev/null; then
 fi
 
 # Add user to Docker group if Docker installed
-if id -nG dark_zoul | grep -qw "docker"; then
-    ok "User 'dark_zoul' is already in the Docker group."
-elif command -v docker &>/dev/null; then
-    usermod -aG docker dark_zoul
-    ok "User 'dark_zoul' added to Docker group."
+if command -v docker &>/dev/null; then
+    if id -nG dark_zoul | grep -qw "docker"; then
+        ok "User 'dark_zoul' is already in the Docker group."
+    else
+        usermod -aG docker dark_zoul
+        ok "User 'dark_zoul' added to Docker group."
+    fi
 fi
 
-info "Installing Edge Agent from URL..."
+info "Installing Edge Agent..."
 
 # Prompt for Edge ID and Key
 read -p "Enter Edge ID: " edge_id
@@ -130,7 +152,11 @@ read -p "Enter Edge Key: " edge_key
 
 # Download and run the script for Portainer Agent, passing the credentials as arguments
 warn "Downloading and executing the Edge Agent install script..."
-curl -fsSL "https://portfolio.darkzoul.org/scripts/EdgeAgentUpdate.sh" | bash -s "$edge_id" "$edge_key"
+if curl -fsSL "https://portfolio.darkzoul.org/scripts/EdgeAgentUpdate.sh" | bash -s "$edge_id" "$edge_key"; then
+    ok "Edge Agent installed successfully."
+else
+    err "Edge Agent installation failed."
+fi
 
 info "Installing Miscellaneous Programs..."
 
@@ -149,6 +175,14 @@ if command -v neofetch &>/dev/null; then
 else
     apt-get install -y -qq neofetch >/dev/null 2>&1
     ok "neofetch installed successfully."
+fi
+
+# Install tree if not present
+if command -v tree &>/dev/null; then
+    ok "tree is already installed."
+else
+    apt-get install -y -qq tree >/dev/null 2>&1
+    ok "tree installed successfully."
 fi
 
 ok "Setup Complete!"
