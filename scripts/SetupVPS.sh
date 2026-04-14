@@ -100,34 +100,130 @@ backup_path="/etc/ssh/sshd_config.bak"
 changed=false
 
 # Backup config (once)
-[[ ! -f "$backup_path" ]] && cp "$sshd_config_path" "$backup_path"
+if [[ ! -f "$backup_path" ]]; then
+    cp "$sshd_config_path" "$backup_path"
+    info "Created backup at $backup_path"
+else
+    info "Backup already exists"
+fi
+
+# Helper function to set SSH config parameter
+set_ssh_config() {
+    local param="$1"
+    local value="$2"
+    local config="$3"
+    
+    if grep -qi "^#\?${param}" "$config"; then
+        sed -i "s/^#\?${param}\s.*/$(echo "$param $value" | sed 's/[&/\]/\\&/g')/" "$config"
+    else
+        echo "$param $value" >> "$config"
+    fi
+    info "Set $param to $value"
+    changed=true
+}
 
 # Disable PasswordAuthentication
-if grep -Eq "^#?PasswordAuthentication\s+yes" "$sshd_config_path"; then
-    sed -i 's/^#\?PasswordAuthentication\s\+yes/PasswordAuthentication no/' "$sshd_config_path"
-    changed=true
-elif ! grep -q "^PasswordAuthentication no" "$sshd_config_path"; then
-    echo "PasswordAuthentication no" >> "$sshd_config_path"
-    changed=true
+if ! grep -q "^PasswordAuthentication no" "$sshd_config_path"; then
+    set_ssh_config "PasswordAuthentication" "no" "$sshd_config_path"
+else
+    info "PasswordAuthentication already set to no"
 fi
 
 # Disable PermitRootLogin
-if grep -Eq "^#?PermitRootLogin\s+yes" "$sshd_config_path"; then
-    sed -i 's/^#\?PermitRootLogin\s\+yes/PermitRootLogin no/' "$sshd_config_path"
-    changed=true
-elif ! grep -q "^PermitRootLogin no" "$sshd_config_path"; then
-    echo "PermitRootLogin no" >> "$sshd_config_path"
-    changed=true
+if ! grep -q "^PermitRootLogin no" "$sshd_config_path"; then
+    set_ssh_config "PermitRootLogin" "no" "$sshd_config_path"
+else
+    info "PermitRootLogin already set to no"
+fi
+
+# Enable PubkeyAuthentication
+if ! grep -q "^PubkeyAuthentication yes" "$sshd_config_path"; then
+    set_ssh_config "PubkeyAuthentication" "yes" "$sshd_config_path"
+else
+    info "PubkeyAuthentication already enabled"
+fi
+
+# Disable empty passwords
+if ! grep -q "^PermitEmptyPasswords no" "$sshd_config_path"; then
+    set_ssh_config "PermitEmptyPasswords" "no" "$sshd_config_path"
+else
+    info "PermitEmptyPasswords already disabled"
+fi
+
+# Disable X11Forwarding
+if ! grep -q "^X11Forwarding no" "$sshd_config_path"; then
+    set_ssh_config "X11Forwarding" "no" "$sshd_config_path"
+else
+    info "X11Forwarding already disabled"
+fi
+
+# Disable Agent Forwarding
+if ! grep -q "^AllowAgentForwarding no" "$sshd_config_path"; then
+    set_ssh_config "AllowAgentForwarding" "no" "$sshd_config_path"
+else
+    info "AllowAgentForwarding already disabled"
+fi
+
+# Disable TCP Forwarding
+if ! grep -q "^AllowTcpForwarding no" "$sshd_config_path"; then
+    set_ssh_config "AllowTcpForwarding" "no" "$sshd_config_path"
+else
+    info "AllowTcpForwarding already disabled"
+fi
+
+# Set MaxAuthTries
+if ! grep -q "^MaxAuthTries 3" "$sshd_config_path"; then
+    set_ssh_config "MaxAuthTries" "3" "$sshd_config_path"
+else
+    info "MaxAuthTries already limited to 3"
+fi
+
+# Set MaxSessions
+if ! grep -q "^MaxSessions 5" "$sshd_config_path"; then
+    set_ssh_config "MaxSessions" "5" "$sshd_config_path"
+else
+    info "MaxSessions already limited to 5"
+fi
+
+# Set ClientAlive settings (keep-alive)
+if ! grep -q "^ClientAliveInterval 300" "$sshd_config_path"; then
+    set_ssh_config "ClientAliveInterval" "300" "$sshd_config_path"
+else
+    info "ClientAliveInterval already set to 300"
+fi
+
+if ! grep -q "^ClientAliveCountMax 2" "$sshd_config_path"; then
+    set_ssh_config "ClientAliveCountMax" "2" "$sshd_config_path"
+else
+    info "ClientAliveCountMax already set to 2"
+fi
+
+# Validate SSH config syntax before restarting
+info "Validating SSH configuration..."
+if sshd -t >/dev/null 2>&1; then
+    info "SSH configuration syntax is valid"
+else
+    err "SSH configuration has syntax errors. Restoring backup..."
+    cp "$backup_path" "$sshd_config_path"
+    exit 1
 fi
 
 # Restart if changes were made
 if $changed; then
-    systemctl restart ssh && \
-    ok "SSH hardened and restarted." || \
-    err "SSH restart failed."
+    info "Restarting SSH service..."
+    if systemctl restart ssh >/dev/null 2>&1; then
+        ok "SSH service restarted successfully"
+    else
+        err "SSH restart failed. Restoring backup..."
+        cp "$backup_path" "$sshd_config_path"
+        systemctl restart ssh
+        exit 1
+    fi
 else
-    ok "SSH already hardened."
+    info "SSH configuration already hardened, no restart needed"
 fi
+
+ok "SSH hardening complete."
 
 info "Checking for Docker Installation..."
 
@@ -163,18 +259,20 @@ if command -v docker &>/dev/null; then
     fi
 fi
 
-info "Installing Edge Agent..."
+if command -v docker &>/dev/null; then
+    info "Installing Edge Agent..."
 
-# Prompt for Edge ID and Key
-read -p "Enter Edge ID: " edge_id
-read -p "Enter Edge Key: " edge_key
+    # Prompt for Edge ID and Key
+    read -p "Enter Edge ID: " edge_id
+    read -p "Enter Edge Key: " edge_key
 
-# Download and run the script for Portainer Agent, passing the credentials as arguments
-warn "Downloading and executing the Edge Agent install script..."
-if curl -fsSL "https://portfolio.darkzoul.org/scripts/EdgeAgentUpdate.sh" | bash -s "$edge_id" "$edge_key"; then
-    ok "Edge Agent installed successfully."
-else
-    err "Edge Agent installation failed."
+    # Download and run the script for Portainer Agent, passing the credentials as arguments
+    warn "Downloading and executing the Edge Agent install script..."
+    if curl -fsSL "https://portfolio.darkzoul.org/scripts/EdgeAgentUpdate.sh" | bash -s "$edge_id" "$edge_key"; then
+        ok "Edge Agent installed successfully."
+    else
+        err "Edge Agent installation failed."
+    fi
 fi
 
 info "Installing Miscellaneous Programs..."
