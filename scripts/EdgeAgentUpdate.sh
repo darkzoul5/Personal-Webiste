@@ -23,7 +23,8 @@ IMAGE_NAME="portainer/agent:lts"
 if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
     # If not passed, check if config file exists and load from it
     if [ -f "$CONFIG_FILE" ]; then
-        source "$CONFIG_FILE"
+        # Safely load config file using eval to handle spaces
+        eval $(grep -E '^(EDGE_ID|EDGE_KEY)=' "$CONFIG_FILE" | sed "s/^/export /")
         info "Loaded EDGE_ID and EDGE_KEY from config file."
         # Validate that credentials were loaded
         if [ -z "${EDGE_ID:-}" ] || [ -z "${EDGE_KEY:-}" ]; then
@@ -34,11 +35,21 @@ if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
         read -rp "Enter Edge ID: " EDGE_ID
         read -rsp "Enter Edge Key: " EDGE_KEY
         echo ""
+        # Validate user input
+        if [ -z "$EDGE_ID" ] || [ -z "$EDGE_KEY" ]; then
+            err "EDGE_ID and EDGE_KEY cannot be empty."
+            exit 1
+        fi
     fi
 else
     EDGE_ID=$1
     EDGE_KEY=$2
     info "Using EDGE_ID and EDGE_KEY passed as arguments."
+    # Validate arguments
+    if [ -z "$EDGE_ID" ] || [ -z "$EDGE_KEY" ]; then
+        err "EDGE_ID and EDGE_KEY cannot be empty."
+        exit 1
+    fi
 fi
 
 info "Checking for updated image: $IMAGE_NAME"
@@ -65,10 +76,26 @@ else
     fi
 fi
 
+# Check if container is already running with current credentials (idempotency)
+if docker ps --format '{{.Names}}' | grep -Eq "^portainer_edge_agent\$"; then
+    RUNNING_EDGE_ID=$(docker inspect portainer_edge_agent -f '{{.Config.Env}}' | grep -oP 'EDGE_ID=\K[^ ]+')
+    if [ "$RUNNING_EDGE_ID" = "$EDGE_ID" ]; then
+        ok "Container already running with current credentials. Skipping recreation."
+        exit 0
+    fi
+fi
+
+# Stop and remove existing container (even if not running)
 if docker ps -a --format '{{.Names}}' | grep -Eq "^portainer_edge_agent\$"; then
     info "Stopping and removing existing container: portainer_edge_agent"
-    docker stop portainer_edge_agent
-    docker rm portainer_edge_agent
+    if docker stop portainer_edge_agent >/dev/null 2>&1; then
+        info "Container stopped"
+    fi
+    if docker rm portainer_edge_agent >/dev/null 2>&1; then
+        info "Container removed"
+    else
+        warn "Failed to remove container (may be in use)"
+    fi
 fi
 
 info "Starting updated container: portainer_edge_agent"
@@ -86,7 +113,13 @@ docker run -d \
   "$IMAGE_NAME"
 
 if [ $? -eq 0 ]; then
-    ok "Container started successfully."
+    # Verify container is actually running
+    if docker ps --format '{{.Names}}' | grep -Eq "^portainer_edge_agent\$"; then
+        ok "Container started successfully and is running."
+    else
+        err "Container created but is not running. Check logs with: docker logs portainer_edge_agent"
+        exit 1
+    fi
 
     # Save credentials only if config file doesn't exist
     if [ ! -f "$CONFIG_FILE" ]; then
@@ -96,6 +129,7 @@ if [ $? -eq 0 ]; then
             echo "EDGE_KEY=\"$EDGE_KEY\""
         } > "$CONFIG_FILE"
         chmod 600 "$CONFIG_FILE"
+        info "Config file saved with restricted permissions (600)"
     fi
 
     if [ -n "$OLD_IMAGE_ID" ] && [ "$OLD_IMAGE_ID" != "$NEW_IMAGE_ID" ]; then
