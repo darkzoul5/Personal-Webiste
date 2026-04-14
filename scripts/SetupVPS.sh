@@ -277,6 +277,14 @@ fi
 
 info "Installing Miscellaneous Programs..."
 
+# Install ufw if not present
+if command -v ufw &>/dev/null; then
+    ok "ufw is already installed."
+else
+    apt-get install -y -qq ufw >/dev/null 2>&1
+    ok "ufw installed successfully."
+fi
+
 # Install btop if not present
 if command -v btop &>/dev/null; then
     ok "btop is already installed."
