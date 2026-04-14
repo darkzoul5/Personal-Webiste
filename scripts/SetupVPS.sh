@@ -40,7 +40,13 @@ if [[ "$setup_swap" == "y" ]]; then
         chmod 600 /swapfile
         mkswap /swapfile
         swapon /swapfile
-        echo "/swapfile none swap sw 0 0" >> /etc/fstab
+        # Only add to fstab if not already present
+        if ! grep -q "/swapfile" /etc/fstab; then
+            echo "/swapfile none swap sw 0 0" >> /etc/fstab
+            info "Added swapfile entry to /etc/fstab"
+        else
+            info "Swapfile already in /etc/fstab"
+        fi
         ok "Swap setup complete."
     fi
 else
@@ -60,18 +66,28 @@ fi
 # Copy SSH keys from current user to dark_zoul if authorized_keys exists
 if [[ -f "$HOME/.ssh/authorized_keys" ]]; then
     mkdir -p /home/dark_zoul/.ssh
-    cp "$HOME/.ssh/authorized_keys" /home/dark_zoul/.ssh/authorized_keys
+    if ! cmp -s "$HOME/.ssh/authorized_keys" /home/dark_zoul/.ssh/authorized_keys 2>/dev/null; then
+        cp "$HOME/.ssh/authorized_keys" /home/dark_zoul/.ssh/authorized_keys
+        info "SSH keys copied to 'dark_zoul'"
+    else
+        info "SSH keys already up-to-date for 'dark_zoul'"
+    fi
     chown -R dark_zoul:dark_zoul /home/dark_zoul/.ssh
     chmod 700 /home/dark_zoul/.ssh
     chmod 600 /home/dark_zoul/.ssh/authorized_keys
-    ok "SSH keys copied to 'dark_zoul'."
+    ok "SSH keys verified for 'dark_zoul'."
 else
     warn "No SSH authorized_keys found in current user."
 fi
 
-# Set password for dark_zoul (required for sudo)
-echo "Set a password for 'dark_zoul' (needed for sudo commands):"
-passwd dark_zoul
+# Set password for dark_zoul (required for sudo) - only if not already set
+if ! sudo -u dark_zoul -n true >/dev/null 2>&1; then
+    echo "Set a password for 'dark_zoul' (needed for sudo commands):"
+    passwd dark_zoul
+    info "Password set for 'dark_zoul'"
+else
+    info "'dark_zoul' already has sudo access with password or key"
+fi
 
 # Add dark_zoul to sudoers
 SUDOERS_FILE="/etc/sudoers.d/dark_zoul"
@@ -260,18 +276,23 @@ if command -v docker &>/dev/null; then
 fi
 
 if command -v docker &>/dev/null; then
-    info "Installing Edge Agent..."
-
-    # Prompt for Edge ID and Key
-    read -p "Enter Edge ID: " edge_id
-    read -p "Enter Edge Key: " edge_key
-
-    # Download and run the script for Portainer Agent, passing the credentials as arguments
-    warn "Downloading and executing the Edge Agent install script..."
-    if curl -fsSL "https://portfolio.darkzoul.org/scripts/EdgeAgentUpdate.sh" | bash -s "$edge_id" "$edge_key"; then
-        ok "Edge Agent installed successfully."
+    # Check if Edge Agent is already installed
+    if docker ps -a --format '{{.Names}}' | grep -q "edge_agent\|portainer-ce-agent"; then
+        ok "Edge Agent is already installed."
     else
-        err "Edge Agent installation failed."
+        info "Installing Edge Agent..."
+
+        # Prompt for Edge ID and Key
+        read -p "Enter Edge ID: " edge_id
+        read -p "Enter Edge Key: " edge_key
+
+        # Download and run the script for Portainer Agent, passing the credentials as arguments
+        warn "Downloading and executing the Edge Agent install script..."
+        if curl -fsSL "https://portfolio.darkzoul.org/scripts/EdgeAgentUpdate.sh" | bash -s "$edge_id" "$edge_key"; then
+            ok "Edge Agent installed successfully."
+        else
+            err "Edge Agent installation failed."
+        fi
     fi
 fi
 
