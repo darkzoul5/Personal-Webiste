@@ -1,18 +1,23 @@
 #!/bin/bash
 set -euo pipefail
 # Colors
+BLUE="\033[1;34m"
 GREEN="\033[1;32m"
 YELLOW="\033[1;33m"
 RED="\033[1;31m"
 NC="\033[0m"
 
-info() { echo -e "${YELLOW}[INFO]${NC} $1"; }
+info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 ok()   { echo -e "${GREEN}[OK]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 err()  { echo -e "${RED}[ERROR]${NC} $1"; }
 
+# Determine the actual user's home directory (works with sudo)
+REAL_USER="${SUDO_USER:-$(whoami)}"
+CONFIG_DIR=$(eval echo "~$REAL_USER")
+CONFIG_FILE="$CONFIG_DIR/.portainer_edge.conf"
+
 IMAGE_NAME="portainer/agent:lts"
-CONFIG_FILE="$HOME/.portainer_edge.conf"
 
 # Check if EDGE_ID and EDGE_KEY are passed as arguments
 if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
