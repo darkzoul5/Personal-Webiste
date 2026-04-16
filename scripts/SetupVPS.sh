@@ -54,6 +54,20 @@ else
     info "Swap setup skipped."
 fi
 
+info "Setting Timezone to UTC..."
+
+if timedatectl set-timezone UTC 2>/dev/null; then
+    ok "Timezone set to UTC"
+else
+    warn "Failed to set timezone to UTC"
+fi
+
+if timedatectl set-ntp true 2>/dev/null; then
+    ok "NTP synchronization enabled"
+else
+    warn "Failed to enable NTP synchronization"
+fi
+
 info "Setting up User 'dark_zoul'..."
 
 # Check if 'dark_zoul' user exists
@@ -242,6 +256,80 @@ fi
 
 ok "SSH hardening complete."
 
+info "Setting up Firewall (UFW)..."
+
+# Install ufw if not present
+if ! command -v ufw &>/dev/null; then
+    apt-get install -y -qq ufw >/dev/null 2>&1
+    ok "ufw installed successfully."
+else
+    ok "ufw is already installed."
+fi
+
+# Configure UFW rules
+info "Configuring UFW rules..."
+
+# Check if UFW is enabled
+if ! ufw status 2>/dev/null | grep -q "Status: active"; then
+    info "Setting UFW defaults and rules..."
+    ufw default deny incoming >/dev/null 2>&1
+    ufw default allow outgoing >/dev/null 2>&1
+    
+    # Allow SSH, HTTP, HTTPS
+    ufw allow 22/tcp >/dev/null 2>&1
+    ufw allow 80/tcp >/dev/null 2>&1
+    ufw allow 443/tcp >/dev/null 2>&1
+    
+    ufw --force enable >/dev/null 2>&1
+    ok "Firewall (UFW) configured and enabled."
+else
+    ok "Firewall (UFW) already configured."
+fi
+
+info "Setting up Fail2Ban"
+
+if command -v fail2ban-client &>/dev/null; then
+    ok "Fail2Ban is already installed."
+    setup_fail2ban=true
+else
+    read -p "Do you want to install Fail2Ban for SSH protection? (y/n): " setup_fail2ban
+fi
+
+if [[ "$setup_fail2ban" == "true" || "$setup_fail2ban" == "y" ]]; then
+    if ! command -v fail2ban-client &>/dev/null; then
+        info "Installing Fail2Ban..."
+        apt-get install -y -qq fail2ban >/dev/null 2>&1
+        ok "Fail2Ban installed successfully."
+    fi
+    
+    # Start and enable Fail2Ban
+    info "Configuring Fail2Ban..."
+    systemctl start fail2ban >/dev/null 2>&1
+    systemctl enable fail2ban >/dev/null 2>&1
+    
+    # Create jail configuration for SSH
+    if [[ ! -f /etc/fail2ban/jail.local ]]; then
+        cat > /etc/fail2ban/jail.local <<EOF
+[DEFAULT]
+bantime = 7200
+bantime.increment = true
+bantime.factor = 2
+bantime.maxtime = 604800
+findtime = 600
+maxretry = 5
+
+[sshd]
+enabled = true
+EOF
+        info "Created Fail2Ban SSH jail configuration"
+        systemctl restart fail2ban >/dev/null 2>&1
+    fi
+    
+    ok "Fail2Ban setup complete."
+else
+    info "Fail2Ban installation skipped."
+fi
+
 info "Checking for Docker Installation..."
 
 # Install Docker if not present
@@ -298,14 +386,6 @@ if command -v docker &>/dev/null; then
 fi
 
 info "Installing Miscellaneous Programs..."
-
-# Install ufw if not present
-if command -v ufw &>/dev/null; then
-    ok "ufw is already installed."
-else
-    apt-get install -y -qq ufw >/dev/null 2>&1
-    ok "ufw installed successfully."
-fi
 
 # Install btop if not present
 if command -v btop &>/dev/null; then
