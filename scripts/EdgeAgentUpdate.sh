@@ -18,6 +18,7 @@ CONFIG_DIR=$(eval echo "~$REAL_USER")
 CONFIG_FILE="$CONFIG_DIR/.portainer_edge.conf"
 
 IMAGE_NAME="portainer/agent:lts"
+CONTAINER_NAME="portainer_edge_agent"
 
 # Check if EDGE_ID and EDGE_KEY are passed as arguments
 if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
@@ -55,6 +56,7 @@ fi
 info "Checking for updated image: $IMAGE_NAME"
 
 OLD_IMAGE_ID=$(docker inspect --format='{{.Id}}' "$IMAGE_NAME" 2>/dev/null || true)
+CONTAINER_IMAGE_ID=$(docker inspect --format='{{.Image}}' "$CONTAINER_NAME" 2>/dev/null || true)
 
 if ! PULL_OUTPUT=$(docker pull "$IMAGE_NAME" 2>&1); then
     err "Failed to pull image: $IMAGE_NAME. Check your Docker setup and internet connection."
@@ -64,8 +66,12 @@ fi
 NEW_IMAGE_ID=$(docker inspect --format='{{.Id}}' "$IMAGE_NAME" 2>/dev/null)
 
 if echo "$PULL_OUTPUT" | grep -q "Image is up to date"; then
-    ok "Image is already up to date. No update necessary."
-    exit 0
+    if [ "$CONTAINER_IMAGE_ID" = "$NEW_IMAGE_ID" ]; then
+        ok "Image is already up to date and container already uses it. No update necessary."
+        exit 0
+    else
+        info "Image is already up to date locally, but container uses an older image. Proceeding with container recreation."
+    fi
 else
     if [ -z "$OLD_IMAGE_ID" ]; then
         info "Installing new Portainer Edge Agent image..."
@@ -76,29 +82,20 @@ else
     fi
 fi
 
-# Check if container is already running with current credentials (idempotency)
-if docker ps --format '{{.Names}}' | grep -Eq "^portainer_edge_agent\$"; then
-    RUNNING_EDGE_ID=$(docker inspect portainer_edge_agent -f '{{.Config.Env}}' | grep -oP 'EDGE_ID=\K[^ ]+')
-    if [ "$RUNNING_EDGE_ID" = "$EDGE_ID" ]; then
-        ok "Container already running with current credentials. Skipping recreation."
-        exit 0
-    fi
-fi
-
 # Stop and remove existing container (even if not running)
-if docker ps -a --format '{{.Names}}' | grep -Eq "^portainer_edge_agent\$"; then
-    info "Stopping and removing existing container: portainer_edge_agent"
-    if docker stop portainer_edge_agent >/dev/null 2>&1; then
+if docker ps -a --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}\$"; then
+    info "Stopping and removing existing container: $CONTAINER_NAME"
+    if docker stop "$CONTAINER_NAME" >/dev/null 2>&1; then
         info "Container stopped"
     fi
-    if docker rm portainer_edge_agent >/dev/null 2>&1; then
+    if docker rm "$CONTAINER_NAME" >/dev/null 2>&1; then
         info "Container removed"
     else
         warn "Failed to remove container (may be in use)"
     fi
 fi
 
-info "Starting updated container: portainer_edge_agent"
+info "Starting updated container: $CONTAINER_NAME"
 docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /var/lib/docker/volumes:/var/lib/docker/volumes \
@@ -109,15 +106,15 @@ docker run -d \
   -e EDGE_ID="$EDGE_ID" \
   -e EDGE_KEY="$EDGE_KEY" \
   -e EDGE_INSECURE_POLL=1 \
-  --name portainer_edge_agent \
+  --name "$CONTAINER_NAME" \
   "$IMAGE_NAME"
 
 if [ $? -eq 0 ]; then
     # Verify container is actually running
-    if docker ps --format '{{.Names}}' | grep -Eq "^portainer_edge_agent\$"; then
+    if docker ps --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}\$"; then
         ok "Container started successfully and is running."
     else
-        err "Container created but is not running. Check logs with: docker logs portainer_edge_agent"
+        err "Container created but is not running. Check logs with: docker logs $CONTAINER_NAME"
         exit 1
     fi
 
