@@ -291,7 +291,7 @@ info "Setting up unattended security upgrades..."
 # Install unattended-upgrades if not present
 if ! dpkg -s unattended-upgrades >/dev/null 2>&1; then
     apt-get update -qq >/dev/null 2>&1
-    apt-get install -y -qq unattended-upgrades apt-listchanges >/dev/null 2>&1
+    apt-get install -y -qq unattended-upgrades >/dev/null 2>&1
     ok "unattended-upgrades installed successfully."
 else
     ok "unattended-upgrades is already installed."
