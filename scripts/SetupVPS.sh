@@ -286,6 +286,43 @@ else
     ok "Firewall (UFW) already configured."
 fi
 
+info "Setting up unattended security upgrades..."
+
+# Install unattended-upgrades if not present
+if ! dpkg -s unattended-upgrades >/dev/null 2>&1; then
+    apt-get update -qq >/dev/null 2>&1
+    apt-get install -y -qq unattended-upgrades apt-listchanges >/dev/null 2>&1
+    ok "unattended-upgrades installed successfully."
+else
+    ok "unattended-upgrades is already installed."
+fi
+
+# Configure automatic updates security only
+cat > /etc/apt/apt.conf.d/20auto-upgrades <<EOF
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "7";
+EOF
+
+cat > /etc/apt/apt.conf.d/51unattended-upgrades-security-only <<EOF
+Unattended-Upgrade::Allowed-Origins {
+        "\${distro_id}:\${distro_codename}-security";
+};
+
+Unattended-Upgrade::Package-Blacklist {
+};
+
+Unattended-Upgrade::Remove-Unused-Dependencies "false";
+Unattended-Upgrade::Remove-New-Unused-Dependencies "false";
+
+Unattended-Upgrade::Automatic-Reboot "false";
+EOF
+
+systemctl enable unattended-upgrades >/dev/null 2>&1
+systemctl restart unattended-upgrades >/dev/null 2>&1
+
+ok "Unattended security upgrades configured."
+
 info "Setting up Fail2Ban"
 
 if command -v fail2ban-client &>/dev/null; then
