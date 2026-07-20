@@ -18,12 +18,12 @@ run_with_indicator() {
 
     "$@" >/tmp/aptupdate.log 2>&1 &
     local pid=$!
-    local symbols=("|" "/" "-" "\\")
+    local symbols=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
     local i=0
 
     while kill -0 "$pid" 2>/dev/null; do
         printf "\r${symbols[$i]} Working..."
-        i=$(( (i + 1) % 4 ))
+        i=$(( (i + 1) % ${#symbols[@]} ))
         sleep 0.2
     done
 
