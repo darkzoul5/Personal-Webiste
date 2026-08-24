@@ -60,12 +60,12 @@ run_with_indicator() {
                 package="$current"
             fi
 
-            printf "\r%s %-45s %3ds" \
+            printf "\r%s %-45s [%ds]" \
                 "${symbols[$i]}" \
                 "$package" \
                 "$elapsed"
         else
-            printf "\r%s Working... %3ds" \
+            printf "\r%s Working... [%ds]" \
                 "${symbols[$i]}" \
                 "$elapsed"
         fi
@@ -74,10 +74,12 @@ run_with_indicator() {
         sleep 0.1
     done
 
+    local elapsed=$((SECONDS - start_time))
+
     if wait "$pid"; then
-        printf "\r✓ Done.                                      \n"
+        printf "\033[2K\r✓ Done.                              [%ds]\n" "$elapsed"
     else
-        printf "\r✗ Failed.\n"
+        printf "\033[2K\r✗ Failed.                            [%ds]\n" "$elapsed"
         echo
         cat "$logfile"
         rm -f "$logfile" "$statusfile"
