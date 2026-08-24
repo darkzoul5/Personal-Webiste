@@ -42,9 +42,11 @@ run_with_indicator() {
     local symbols=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
     local i=0
     local package="Working..."
-    local elapsed=0
+    local start_time=$SECONDS
 
     while kill -0 "$pid" 2>/dev/null; do
+        local elapsed=$((SECONDS - start_time))
+
         if $track_packages; then
             local current
             current=$(
@@ -70,15 +72,10 @@ run_with_indicator() {
 
         i=$(( (i + 1) % ${#symbols[@]} ))
         sleep 0.1
-        elapsed=$((elapsed + 1))
     done
 
     if wait "$pid"; then
-        if $track_packages; then
-            printf "\r✓ Done.                                      \n"
-        else
-            printf "\r✓ Done.                                      \n"
-        fi
+        printf "\r✓ Done.                                      \n"
     else
         printf "\r✗ Failed.\n"
         echo
