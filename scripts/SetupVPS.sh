@@ -112,7 +112,7 @@ else
     # Create file with tee to ensure it's written correctly
     echo "dark_zoul ALL=(ALL) ALL" | tee "$SUDOERS_FILE" > /dev/null
     chmod 440 "$SUDOERS_FILE"
-    
+
     # Validate the sudoers file syntax
     if visudo -c -f "$SUDOERS_FILE" >/dev/null 2>&1; then
         ok "User 'dark_zoul' added to sudoers."
@@ -143,7 +143,7 @@ set_ssh_config() {
     local param="$1"
     local value="$2"
     local config="$3"
-    
+
     if grep -qi "^#\?${param}" "$config"; then
         sed -i "s/^#\?${param}\s.*/$(echo "$param $value" | sed 's/[&/\]/\\&/g')/" "$config"
     else
@@ -274,12 +274,12 @@ if ! ufw status 2>/dev/null | grep -q "Status: active"; then
     info "Setting UFW defaults and rules..."
     ufw default deny incoming >/dev/null 2>&1
     ufw default allow outgoing >/dev/null 2>&1
-    
+
     # Allow SSH, HTTP, HTTPS
     ufw allow 22/tcp >/dev/null 2>&1
     ufw allow 80/tcp >/dev/null 2>&1
     ufw allow 443/tcp >/dev/null 2>&1
-    
+
     ufw --force enable >/dev/null 2>&1
     ok "Firewall (UFW) configured and enabled."
 else
@@ -338,12 +338,12 @@ if [[ "$setup_fail2ban" == "true" || "$setup_fail2ban" == "y" ]]; then
         apt-get install -y -qq fail2ban >/dev/null 2>&1
         ok "Fail2Ban installed successfully."
     fi
-    
+
     # Start and enable Fail2Ban
     info "Configuring Fail2Ban..."
     systemctl start fail2ban >/dev/null 2>&1
     systemctl enable fail2ban >/dev/null 2>&1
-    
+
     # Create jail configuration for SSH
     if [[ ! -f /etc/fail2ban/jail.local ]]; then
         cat > /etc/fail2ban/jail.local <<EOF
@@ -361,11 +361,76 @@ EOF
         info "Created Fail2Ban SSH jail configuration"
         systemctl restart fail2ban >/dev/null 2>&1
     fi
-    
+
     ok "Fail2Ban setup complete."
 else
     info "Fail2Ban installation skipped."
 fi
+
+
+
+info "Setting up TCP BBR..."
+
+BBR_CONFIG="/etc/sysctl.d/99-bbr.conf"
+BBR_MODULE_CONFIG="/etc/modules-load.d/tcp_bbr.conf"
+
+if [[ "$(sysctl -n net.ipv4.tcp_congestion_control 2>/dev/null)" == "bbr" &&
+      "$(sysctl -n net.core.default_qdisc 2>/dev/null)" == "fq" &&
+      -f "$BBR_CONFIG" ]] &&
+    grep -qxF "net.core.default_qdisc = fq" "$BBR_CONFIG" &&
+    grep -qxF "net.ipv4.tcp_congestion_control = bbr" "$BBR_CONFIG" &&
+    [[ "$(wc -l < "$BBR_CONFIG")" -eq 2 ]]; then
+    ok "TCP BBR is already configured."
+else
+    read -p "Do you want to enable TCP BBR? (y/n): " setup_bbr
+
+    if [[ "$setup_bbr" == "y" ]]; then
+        # Check if BBR is available
+        if ! sysctl -n net.ipv4.tcp_available_congestion_control 2>/dev/null | grep -qw "bbr"; then
+            info "Loading TCP BBR module..."
+            modprobe tcp_bbr 2>/dev/null || true
+        fi
+
+        if sysctl -n net.ipv4.tcp_available_congestion_control 2>/dev/null | grep -qw "bbr"; then
+            # Configure module loading at boot if available as a module
+            if modinfo tcp_bbr >/dev/null 2>&1; then
+                if [[ -f "$BBR_MODULE_CONFIG" ]] &&
+                    grep -qxF "tcp_bbr" "$BBR_MODULE_CONFIG" &&
+                    [[ "$(wc -l < "$BBR_MODULE_CONFIG")" -eq 1 ]]; then
+                    ok "TCP BBR module loading is already configured."
+                else
+                    echo "tcp_bbr" > "$BBR_MODULE_CONFIG"
+                    ok "TCP BBR module loading configured."
+                fi
+            fi
+
+            # Configure BBR
+            if [[ -f "$BBR_CONFIG" ]] &&
+                grep -qxF "net.core.default_qdisc = fq" "$BBR_CONFIG" &&
+                grep -qxF "net.ipv4.tcp_congestion_control = bbr" "$BBR_CONFIG" &&
+                [[ "$(wc -l < "$BBR_CONFIG")" -eq 2 ]]; then
+                ok "TCP BBR configuration already exists."
+            else
+                cat > "$BBR_CONFIG" <<'EOF'
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+EOF
+
+                if sysctl -p "$BBR_CONFIG" >/dev/null 2>&1; then
+                    ok "TCP BBR configured successfully."
+                else
+                    err "Failed to apply TCP BBR configuration."
+                fi
+            fi
+        else
+            warn "TCP BBR is not supported by the running kernel."
+        fi
+    else
+        info "TCP BBR setup skipped."
+    fi
+fi
+
+
 
 info "Checking for Docker Installation..."
 
